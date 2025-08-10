@@ -5,7 +5,7 @@ function App() {
 
   const getData = async () => {
     try {
-      const res = await fetch("https://TU-BACKEND.up.railway.app/api");
+      const res = await fetch("https://tech-uber.onrender.com/api");
       const json = await res.json();
       setData(json.message);
     } catch (err) {
