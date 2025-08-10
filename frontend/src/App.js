@@ -25,7 +25,7 @@ function App() {
 
   return (
     <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Frontend en Netlify</h1>
+      <h1>Frontend en Netlify personalizado por Yonar</h1>
       <button onClick={getData} disabled={loading}>
         {loading ? "Cargando..." : "Llamar API"}
       </button>
