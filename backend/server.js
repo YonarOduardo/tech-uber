@@ -1,13 +1,16 @@
-const express = require("express");
-const cors = require("cors");
+import express from "express";
+import cors from "cors";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(cors());
+// Aquí especificamos el dominio de tu frontend en Netlify
+app.use(cors({
+  origin: "https://chipper-bienenstitch-6e40fa.netlify.app/" // Reemplaza con tu URL real
+}));
 
 app.get("/api", (req, res) => {
-  res.json({ message: "Hola desde el backend en Railway 🚀" });
+  res.json({ message: "Hola desde el backend en Render 🚀" });
 });
 
 app.listen(PORT, () => {
