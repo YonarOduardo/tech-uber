@@ -1,4 +1,6 @@
 import { useState } from "react";
+import LoginForm from "./pages/LoginForm.jsx";
+import RegisterForm from "./pages/RegisterForm.jsx";
 // Icono simple de globo terráqueo (puedes reemplazarlo por un SVG más detallado si lo deseas)
 const GlobeIcon = () => (
 	<svg
@@ -29,6 +31,8 @@ const GlobeIcon = () => (
 import "./App.css";
 
 function App() {
+	// Estado para mostrar login o registro
+	const [showLogin, setShowLogin] = useState(true);
 	const [count, setCount] = useState(0);
 	const [lang, setLang] = useState("es");
 	const [showLangMenu, setShowLangMenu] = useState(false);
@@ -136,33 +140,42 @@ function App() {
 							</ul>
 						)}
 					</div>
-					<a
-						href="#"
-						className="hover:underline bg-white/20 text-white px-2 py-1 rounded transition-colors duration-200"
+					<button
+						className={`hover:underline bg-white/20 text-white px-2 py-1 rounded transition-colors duration-200 ${
+							showLogin ? "font-bold underline" : ""
+						}`}
+						onClick={() => setShowLogin(true)}
 					>
 						{texts[lang].login}
-					</a>
-					<a
-						href="#"
-						className="hover:underline bg-gray-200 text-black px-2 py-1 rounded transition-colors duration-200"
+					</button>
+					<button
+						className={`hover:underline bg-gray-200 text-black px-2 py-1 rounded transition-colors duration-200 ${
+							!showLogin ? "font-bold underline" : ""
+						}`}
+						onClick={() => setShowLogin(false)}
 					>
 						{texts[lang].register}
-					</a>
+					</button>
 				</div>
 				{/* Botón para mostrar el menú de idioma */}
 			</header>
 
 			{/* Imagen principal responsive, sin espacio respecto al header */}
 			<div
-				className="w-full max-h-[200vh] sm:max-h-[800vh] overflow-hidden flex justify-center items-center"
-				style={{ marginTop: "25" }}
+				className="w-full max-h-[60vh] sm:max-h-[80vh] overflow-hidden flex justify-center items-center"
+				style={{ marginTop: 0 }}
 			>
 				<img
 					className="w-full h-auto object-cover object-center"
-					style={{ marginTop: 40 }}
+					style={{ marginTop: 0 }}
 					src="/electricity-workers-illustration-concept-vector.jpg"
 					alt="Descripción"
 				/>
+			</div>
+
+			{/* Formularios de login y registro */}
+			<div className="my-8">
+				{showLogin ? <LoginForm /> : <RegisterForm />}
 			</div>
 		</>
 	);
