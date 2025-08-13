@@ -17,7 +17,7 @@ export default function RegisterForm() {
 		setSuccess("");
 		try {
 			const res = await fetch(
-				"https://tech-uber-backend.onrender.com/api/register",
+				"https://tech-uber.onrender.com/api/register",
 				{
 					method: "POST",
 					headers: { "Content-Type": "application/json" },
