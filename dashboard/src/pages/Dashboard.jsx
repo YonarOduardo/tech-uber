@@ -1,11 +1,9 @@
 import { useEffect, useState } from "react";
 import UsersTable from "../components/UsersTable";
-import useAuth from "../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
   const [users, setUsers] = useState([]);
-  const { logout } = useAuth();
   const navigate = useNavigate();
 
   const fetchUsers = async () => {
@@ -28,6 +26,13 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    // Elimina el token o datos de sesión
+    localStorage.removeItem("token");
+    // Redirige al login del dashboard
+    navigate("/login");
+  };
+
   useEffect(() => {
     fetchUsers();
   }, []);
@@ -37,11 +42,8 @@ export default function Dashboard() {
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Dashboard de Usuarios</h1>
         <button
-          onClick={() => {
-            logout();
-            navigate("/");
-          }}
-          className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700"
+          onClick={handleLogout}
+          className="bg-red-500 text-white px-4 py-2 rounded"
         >
           Cerrar sesión
         </button>
