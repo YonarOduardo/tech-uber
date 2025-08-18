@@ -1,3 +1,4 @@
+// server.js
 import express from "express";
 import cors from "cors";
 import pool from "./db.js";
@@ -11,7 +12,7 @@ app.use(express.json());
 
 // Crear tabla de usuarios si no existe
 const createUsersTable = async () => {
-	await pool.query(`
+    await pool.query(`
     CREATE TABLE IF NOT EXISTS users (
       id SERIAL PRIMARY KEY,
       username VARCHAR(100) UNIQUE NOT NULL,
@@ -23,66 +24,117 @@ const createUsersTable = async () => {
 };
 createUsersTable();
 
-// Registro de usuario
+// ===============================
+// 🔹 Registro de usuario
+// ===============================
 app.post("/api/register", async (req, res) => {
-	const { username, email, password } = req.body;
-	if (!username || !email || !password) {
-		return res
-			.status(400)
-			.json({ error: "Todos los campos son obligatorios" });
-	}
-	try {
-		const hashedPassword = await bcrypt.hash(password, 10);
-		const result = await pool.query(
-			"INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, created_at",
-			[username, email, hashedPassword]
-		);
-		res.status(201).json({ user: result.rows[0] });
-	} catch (err) {
-		if (err.code === "23505") {
-			res.status(409).json({ error: "Usuario o email ya existe" });
-		} else {
-			res.status(500).json({ error: "Error en el servidor" });
-		}
-	}
+    const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+        return res
+            .status(400)
+            .json({ error: "Todos los campos son obligatorios" });
+    }
+    try {
+        const hashedPassword = await bcrypt.hash(password, 10);
+        const result = await pool.query(
+            "INSERT INTO users (username, email, password) VALUES ($1, $2, $3) RETURNING id, username, email, created_at",
+            [username, email, hashedPassword]
+        );
+        res.status(201).json({ user: result.rows[0] });
+    } catch (err) {
+        if (err.code === "23505") {
+            res.status(409).json({ error: "Usuario o email ya existe" });
+        } else {
+            res.status(500).json({ error: "Error en el servidor" });
+        }
+    }
 });
 
-// Inicio de sesión
+// ===============================
+// 🔹 Inicio de sesión
+// ===============================
 app.post("/api/login", async (req, res) => {
-	const { email, password } = req.body;
-	if (!email || !password) {
-		return res.status(400).json({ error: "Email y contraseña requeridos" });
-	}
-	try {
-		const result = await pool.query(
-			"SELECT * FROM users WHERE email = $1",
-			[email]
-		);
-		if (result.rows.length === 0) {
-			return res.status(401).json({ error: "Credenciales inválidas" });
-		}
-		const user = result.rows[0];
-		const match = await bcrypt.compare(password, user.password);
-		if (!match) {
-			return res.status(401).json({ error: "Credenciales inválidas" });
-		}
-		res.json({
-			user: {
-				id: user.id,
-				username: user.username,
-				email: user.email,
-				created_at: user.created_at,
-			},
-		});
-	} catch (err) {
-		res.status(500).json({ error: "Error en el servidor" });
-	}
+    const { email, password } = req.body;
+    if (!email || !password) {
+        return res.status(400).json({ error: "Email y contraseña requeridos" });
+    }
+    try {
+        const result = await pool.query(
+            "SELECT * FROM users WHERE email = $1",
+            [email]
+        );
+        if (result.rows.length === 0) {
+            return res.status(401).json({ error: "Credenciales inválidas" });
+        }
+        const user = result.rows[0];
+        const match = await bcrypt.compare(password, user.password);
+        if (!match) {
+            return res.status(401).json({ error: "Credenciales inválidas" });
+        }
+        res.json({
+            user: {
+                id: user.id,
+                username: user.username,
+                email: user.email,
+                created_at: user.created_at,
+            },
+        });
+    } catch (err) {
+        res.status(500).json({ error: "Error en el servidor" });
+    }
 });
 
+// ===============================
+// 🔹 Listar todos los usuarios
+// ===============================
+app.get("/api/users", async (req, res) => {
+    try {
+        const result = await pool.query("SELECT id, username, email, created_at FROM users ORDER BY created_at DESC");
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al obtener usuarios" });
+    }
+});
+
+// ===============================
+// 🔹 Ver un usuario por ID
+// ===============================
+app.get("/api/users/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await pool.query("SELECT id, username, email, created_at FROM users WHERE id = $1", [id]);
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: "Usuario no encontrado" });
+        }
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al obtener usuario" });
+    }
+});
+
+// ===============================
+// 🔹 Eliminar usuario
+// ===============================
+app.delete("/api/users/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        await pool.query("DELETE FROM users WHERE id = $1", [id]);
+        res.json({ message: "Usuario eliminado correctamente" });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Error al eliminar usuario" });
+    }
+});
+
+// ===============================
+// 🔹 Ruta de prueba
+// ===============================
 app.get("/api", (req, res) => {
-	res.json({ message: "Hola desde el backend en Render 🚀" });
+    res.json({ message: "Hola desde el backend en Render 🚀" });
 });
 
 app.listen(PORT, () => {
-	console.log(`Servidor corriendo en puerto ${PORT}`);
+    console.log(`Servidor corriendo en puerto ${PORT}`);
 });
